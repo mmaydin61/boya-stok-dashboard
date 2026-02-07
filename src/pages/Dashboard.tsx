@@ -1,5 +1,5 @@
 import { Droplets, Package, TrendingUp, AlertTriangle } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { StatCard, StockCard, AlertCard } from '../components/Cards';
 import type { AppData, BoyaTipi } from '../types';
 import { BOYA_RENKLERI } from '../data/initialData';
@@ -19,28 +19,29 @@ export function Dashboard({
   toplamStok,
   kritikStoklar,
 }: DashboardProps) {
-  // Grafik verileri
+  // Grafik verileri - günlük toplam sarfiyat
   const gunlukSarfiyatData = data.haftalikSarfiyat.gunler.map(gun => ({
     gun: gun.gun.substring(0, 3),
-    Metalik: (gun.pik1Sarfiyat || 0) + (gun.ev1Sarfiyat || 0),
-    Mavi: (gun.pik2Sarfiyat || 0) + (gun.ev2Sarfiyat || 0),
-    Beyaz: (gun.pik3Sarfiyat || 0) + (gun.ev3Sarfiyat || 0),
-    Toplam: gun.gunlukToplam,
+    Toplam: gun.gunlukToplam || 0,
   }));
 
   const pieData = [
     { name: 'Metalik', value: boyaBazindaSarfiyat.Metalik, color: BOYA_RENKLERI.Metalik.primary },
     { name: 'Mavi', value: boyaBazindaSarfiyat.Mavi, color: BOYA_RENKLERI.Mavi.primary },
     { name: 'Beyaz', value: boyaBazindaSarfiyat.Beyaz, color: BOYA_RENKLERI.Beyaz.primary },
+    { name: 'Kırmızı', value: boyaBazindaSarfiyat.Kırmızı, color: BOYA_RENKLERI.Kırmızı.primary },
+    { name: 'Pembe', value: boyaBazindaSarfiyat.Pembe, color: BOYA_RENKLERI.Pembe.primary },
   ].filter(d => d.value > 0);
 
   const stokData = [
     { name: 'Metalik', stok: toplamStok.Metalik, min: data.depoStok.metalik[0]?.minStokSeviyesi || 0 },
     { name: 'Mavi', stok: toplamStok.Mavi, min: data.depoStok.mavi[0]?.minStokSeviyesi || 0 },
     { name: 'Beyaz', stok: toplamStok.Beyaz, min: data.depoStok.beyaz[0]?.minStokSeviyesi || 0 },
+    { name: 'Kırmızı', stok: toplamStok.Kırmızı, min: data.depoStok.kirmizi[0]?.minStokSeviyesi || 0 },
+    { name: 'Pembe', stok: toplamStok.Pembe, min: data.depoStok.pembe[0]?.minStokSeviyesi || 0 },
   ];
 
-  const toplamStokMiktar = toplamStok.Metalik + toplamStok.Mavi + toplamStok.Beyaz;
+  const toplamStokMiktar = toplamStok.Metalik + toplamStok.Mavi + toplamStok.Beyaz + toplamStok.Kırmızı + toplamStok.Pembe;
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -103,7 +104,7 @@ export function Dashboard({
       </div>
 
       {/* Stok Kartları */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <StockCard
           boyaTipi="Metalik"
           kalanStok={toplamStok.Metalik}
@@ -121,6 +122,18 @@ export function Dashboard({
           kalanStok={toplamStok.Beyaz}
           minStok={data.depoStok.beyaz[0]?.minStokSeviyesi || 250}
           durum={data.depoStok.beyaz[0]?.durum || 'Normal'}
+        />
+        <StockCard
+          boyaTipi="Kırmızı"
+          kalanStok={toplamStok.Kırmızı}
+          minStok={data.depoStok.kirmizi[0]?.minStokSeviyesi || 150}
+          durum={data.depoStok.kirmizi[0]?.durum || 'Normal'}
+        />
+        <StockCard
+          boyaTipi="Pembe"
+          kalanStok={toplamStok.Pembe}
+          minStok={data.depoStok.pembe[0]?.minStokSeviyesi || 100}
+          durum={data.depoStok.pembe[0]?.durum || 'Normal'}
         />
       </div>
 
@@ -143,10 +156,7 @@ export function Dashboard({
                   }}
                   labelStyle={{ color: '#fff' }}
                 />
-                <Legend />
-                <Bar dataKey="Metalik" fill={BOYA_RENKLERI.Metalik.primary} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Mavi" fill={BOYA_RENKLERI.Mavi.primary} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="Beyaz" fill="#cbd5e1" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Toplam" name="Günlük Toplam" fill="#22c55e" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

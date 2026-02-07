@@ -14,7 +14,6 @@ function App() {
     updateParametreler,
     updateDepoStok,
     updateHaftaNo,
-    updateSarfiyat,
     resetData,
     toplamHaftalikSarfiyat,
     boyaBazindaSarfiyat,
@@ -38,7 +37,6 @@ function App() {
         return (
           <Sarfiyat
             data={data}
-            updateSarfiyat={updateSarfiyat}
             updateHaftaNo={updateHaftaNo}
           />
         );

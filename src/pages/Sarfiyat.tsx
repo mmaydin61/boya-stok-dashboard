@@ -5,13 +5,6 @@ import { BOYA_RENKLERI } from '../data/initialData';
 
 interface SarfiyatProps {
   data: AppData;
-  updateSarfiyat: (
-    gunIndex: number,
-    kategori: 'pinikKazanlar' | 'evKazanlar' | 'sanayiKazanlar',
-    kazanId: string,
-    field: 'seviye' | 'sarfiyat',
-    value: number | null
-  ) => void;
   updateHaftaNo: (haftaNo: number) => void;
 }
 
@@ -20,7 +13,7 @@ interface KazanSeviye {
   cuma: number | null;
 }
 
-export function Sarfiyat({ data, updateSarfiyat, updateHaftaNo }: SarfiyatProps) {
+export function Sarfiyat({ data, updateHaftaNo }: SarfiyatProps) {
   // Her kazan için Pazartesi ve Cuma seviyeleri
   const [seviyeler, setSeviyeler] = useState<Record<string, KazanSeviye>>({});
 

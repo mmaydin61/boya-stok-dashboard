@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { RotateCcw, Database, Info, Paintbrush, Save, Plus, Trash2, Factory, Home, Warehouse } from 'lucide-react';
+import { RotateCcw, Database, Info, Paintbrush, Save, Plus, Trash2, Factory, Home } from 'lucide-react';
 import type { AppData, Kazan, BoyaTipi, KategoriTipi } from '../types';
-import { BOYA_RENKLERI, KATEGORI_ISIMLERI } from '../data/initialData';
+import { BOYA_RENKLERI } from '../data/initialData';
 
 interface AyarlarProps {
   data: AppData;
