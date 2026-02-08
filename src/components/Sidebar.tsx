@@ -1,19 +1,30 @@
-import { LayoutDashboard, Droplets, Warehouse, FileBarChart, Settings, Paintbrush } from 'lucide-react';
+import { LayoutDashboard, Droplets, Warehouse, FileBarChart, Settings, Paintbrush, Lock, LogOut, Shield } from 'lucide-react';
 
 interface SidebarProps {
   activePage: string;
   onPageChange: (page: string) => void;
+  isAuthenticated: boolean;
+  onAdminClick: () => void;
+  onLogout: () => void;
 }
 
 const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'sarfiyat', label: 'Haftalık Sarfiyat', icon: Droplets },
-  { id: 'stok', label: 'Depo Stok', icon: Warehouse },
-  { id: 'rapor', label: 'Özet Rapor', icon: FileBarChart },
-  { id: 'ayarlar', label: 'Ayarlar', icon: Settings },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, requiresAuth: false },
+  { id: 'sarfiyat', label: 'Haftalık Sarfiyat', icon: Droplets, requiresAuth: false },
+  { id: 'stok', label: 'Depo Stok', icon: Warehouse, requiresAuth: false },
+  { id: 'rapor', label: 'Özet Rapor', icon: FileBarChart, requiresAuth: false },
+  { id: 'ayarlar', label: 'Ayarlar', icon: Settings, requiresAuth: true },
 ];
 
-export function Sidebar({ activePage, onPageChange }: SidebarProps) {
+export function Sidebar({ activePage, onPageChange, isAuthenticated, onAdminClick, onLogout }: SidebarProps) {
+  const handleItemClick = (item: typeof menuItems[0]) => {
+    if (item.requiresAuth && !isAuthenticated) {
+      onAdminClick();
+    } else {
+      onPageChange(item.id);
+    }
+  };
+
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900/80 backdrop-blur-xl border-r border-slate-700/50 flex flex-col z-50">
       {/* Logo */}
@@ -24,7 +35,7 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
           </div>
           <div>
             <h1 className="text-lg font-bold text-white">Boya Stok</h1>
-            <p className="text-xs text-slate-400">Takip Sistemi</p>
+            <p className="text-xs text-slate-400">Takip Sistemi v2.0</p>
           </div>
         </div>
       </div>
@@ -34,10 +45,12 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activePage === item.id;
+          const needsAuth = item.requiresAuth && !isAuthenticated;
+
           return (
             <button
               key={item.id}
-              onClick={() => onPageChange(item.id)}
+              onClick={() => handleItemClick(item)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                 isActive
                   ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25'
@@ -45,17 +58,46 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
               }`}
             >
               <Icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium flex-1 text-left">{item.label}</span>
+              {needsAuth && <Lock className="w-4 h-4 text-amber-500" />}
+              {item.requiresAuth && isAuthenticated && (
+                <Shield className="w-4 h-4 text-emerald-500" />
+              )}
             </button>
           );
         })}
       </nav>
 
+      {/* Auth Status */}
+      {isAuthenticated && (
+        <div className="px-4 pb-2">
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">Çıkış Yap</span>
+          </button>
+        </div>
+      )}
+
       {/* Footer */}
       <div className="p-4 border-t border-slate-700/50">
         <div className="px-4 py-3 rounded-xl bg-slate-800/50">
-          <p className="text-xs text-slate-500">Versiyon 1.0</p>
-          <p className="text-xs text-slate-400 mt-1">Veriler otomatik kaydedilir</p>
+          <div className="flex items-center gap-2 mb-1">
+            {isAuthenticated ? (
+              <>
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <p className="text-xs text-emerald-400">Admin Modu</p>
+              </>
+            ) : (
+              <>
+                <div className="w-2 h-2 bg-slate-500 rounded-full" />
+                <p className="text-xs text-slate-500">Kullanıcı Modu</p>
+              </>
+            )}
+          </div>
+          <p className="text-xs text-slate-400">Veriler otomatik kaydedilir</p>
         </div>
       </div>
     </aside>

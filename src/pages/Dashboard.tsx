@@ -1,4 +1,5 @@
-import { Droplets, Package, TrendingUp, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Droplets, Package, TrendingUp, AlertTriangle, Calendar, Clock, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { StatCard, StockCard, AlertCard } from '../components/Cards';
 import type { AppData, BoyaTipi } from '../types';
@@ -19,6 +20,33 @@ export function Dashboard({
   toplamStok,
   kritikStoklar,
 }: DashboardProps) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Format date in Turkish
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('tr-TR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Format time
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('tr-TR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
   // Grafik verileri - günlük toplam sarfiyat
   const gunlukSarfiyatData = data.haftalikSarfiyat.gunler.map(gun => ({
     gun: gun.gun.substring(0, 3),
@@ -45,15 +73,30 @@ export function Dashboard({
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-          <p className="text-slate-400 mt-1">Hafta {data.haftalikSarfiyat.haftaNo} - Boya Stok Durumu</p>
-        </div>
-        <div className="text-right">
-          <p className="text-sm text-slate-400">Son Güncelleme</p>
-          <p className="text-white font-medium">{new Date().toLocaleDateString('tr-TR')}</p>
+      {/* Professional Header */}
+      <div className="bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-cyan-600/20 rounded-2xl border border-slate-700/50 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                <Activity className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+                <p className="text-slate-400">Hafta {data.haftalikSarfiyat.haftaNo} - Boya Stok Durumu</p>
+              </div>
+            </div>
+          </div>
+          <div className="text-right bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+            <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+              <Calendar className="w-4 h-4" />
+              <span>{formatDate(currentTime)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-white text-2xl font-mono">
+              <Clock className="w-5 h-5 text-cyan-400" />
+              <span>{formatTime(currentTime)}</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -104,44 +147,53 @@ export function Dashboard({
       </div>
 
       {/* Stok Kartları */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <StockCard
-          boyaTipi="Metalik"
-          kalanStok={toplamStok.Metalik}
-          minStok={data.depoStok.metalik[0]?.minStokSeviyesi || 200}
-          durum={data.depoStok.metalik[0]?.durum || 'Normal'}
-        />
-        <StockCard
-          boyaTipi="Mavi"
-          kalanStok={toplamStok.Mavi}
-          minStok={data.depoStok.mavi[0]?.minStokSeviyesi || 150}
-          durum={data.depoStok.mavi[0]?.durum || 'Normal'}
-        />
-        <StockCard
-          boyaTipi="Beyaz"
-          kalanStok={toplamStok.Beyaz}
-          minStok={data.depoStok.beyaz[0]?.minStokSeviyesi || 250}
-          durum={data.depoStok.beyaz[0]?.durum || 'Normal'}
-        />
-        <StockCard
-          boyaTipi="Kırmızı"
-          kalanStok={toplamStok.Kırmızı}
-          minStok={data.depoStok.kirmizi[0]?.minStokSeviyesi || 150}
-          durum={data.depoStok.kirmizi[0]?.durum || 'Normal'}
-        />
-        <StockCard
-          boyaTipi="Pembe"
-          kalanStok={toplamStok.Pembe}
-          minStok={data.depoStok.pembe[0]?.minStokSeviyesi || 100}
-          durum={data.depoStok.pembe[0]?.durum || 'Normal'}
-        />
+      <div>
+        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Package className="w-5 h-5 text-cyan-400" />
+          Boya Stok Durumu
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <StockCard
+            boyaTipi="Metalik"
+            kalanStok={toplamStok.Metalik}
+            minStok={data.depoStok.metalik[0]?.minStokSeviyesi || 200}
+            durum={data.depoStok.metalik[0]?.durum || 'Normal'}
+          />
+          <StockCard
+            boyaTipi="Mavi"
+            kalanStok={toplamStok.Mavi}
+            minStok={data.depoStok.mavi[0]?.minStokSeviyesi || 150}
+            durum={data.depoStok.mavi[0]?.durum || 'Normal'}
+          />
+          <StockCard
+            boyaTipi="Beyaz"
+            kalanStok={toplamStok.Beyaz}
+            minStok={data.depoStok.beyaz[0]?.minStokSeviyesi || 250}
+            durum={data.depoStok.beyaz[0]?.durum || 'Normal'}
+          />
+          <StockCard
+            boyaTipi="Kırmızı"
+            kalanStok={toplamStok.Kırmızı}
+            minStok={data.depoStok.kirmizi[0]?.minStokSeviyesi || 150}
+            durum={data.depoStok.kirmizi[0]?.durum || 'Normal'}
+          />
+          <StockCard
+            boyaTipi="Pembe"
+            kalanStok={toplamStok.Pembe}
+            minStok={data.depoStok.pembe[0]?.minStokSeviyesi || 100}
+            durum={data.depoStok.pembe[0]?.durum || 'Normal'}
+          />
+        </div>
       </div>
 
       {/* Grafikler */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Günlük Sarfiyat Grafiği */}
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Günlük Sarfiyat</h3>
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-emerald-400" />
+            Günlük Sarfiyat
+          </h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={gunlukSarfiyatData}>
@@ -164,7 +216,10 @@ export function Dashboard({
 
         {/* Boya Dağılımı */}
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Sarfiyat Dağılımı</h3>
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Droplets className="w-5 h-5 text-blue-400" />
+            Sarfiyat Dağılımı
+          </h3>
           <div className="h-72">
             {pieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -195,7 +250,10 @@ export function Dashboard({
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-slate-500">
-                Henüz sarfiyat verisi yok
+                <div className="text-center">
+                  <Droplets className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                  <p>Henüz sarfiyat verisi yok</p>
+                </div>
               </div>
             )}
           </div>
@@ -203,7 +261,10 @@ export function Dashboard({
 
         {/* Stok Karşılaştırma */}
         <div className="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-6 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-white mb-4">Stok Durumu vs Minimum Seviye</h3>
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Package className="w-5 h-5 text-purple-400" />
+            Stok Durumu vs Minimum Seviye
+          </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stokData} layout="vertical">
@@ -224,6 +285,13 @@ export function Dashboard({
             </ResponsiveContainer>
           </div>
         </div>
+      </div>
+
+      {/* Footer Info */}
+      <div className="bg-slate-800/30 rounded-xl border border-slate-700/30 p-4 text-center">
+        <p className="text-slate-500 text-sm">
+          Veriler otomatik olarak kaydedilmektedir • Son güncelleme: {formatTime(currentTime)}
+        </p>
       </div>
     </div>
   );
